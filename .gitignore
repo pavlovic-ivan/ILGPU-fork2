@@ -356,3 +356,6 @@ Src/ILGPU.Algorithms.Tests/XMathTests.Trig.cs
 Src/ILGPU.Algorithms.Tests.CPU/Configurations.cs
 Src/ILGPU.Algorithms.Tests.Cuda/Configurations.cs
 Src/ILGPU.Algorithms.Tests.OpenCL/Configurations.cs
+
+
+*.DS_Store

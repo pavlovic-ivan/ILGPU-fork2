@@ -80,7 +80,7 @@ jobs:
     steps:
       - name: Check if repo is fork
         id: is-fork
-        run: echo "::set-output name=fork::$(gh api repos/${{ github.repository }} | jq .fork)"
+        run: echo "::set-output name=fork::true"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Setup OS matrix
