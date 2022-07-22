@@ -108,6 +108,5 @@ jobs:
               pulumi stack select $PULUMI_STACK_NAME
               pulumi destroy
               pulumi stack rm
-              npm run cleanup-runners $OWNER $REPO $LABEL
               ;;
           esac
