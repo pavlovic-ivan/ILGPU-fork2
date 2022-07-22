@@ -97,12 +97,11 @@ jobs:
           cd aws
           case ${{ github.event.inputs.action }} in
             'requested')
-              cp ../../ilgpu/.github/workflows/runners/config.yaml Pulumi.$PULUMI_STACK_NAME.yaml
-              pulumi stack init $PULUMI_STACK_NAME
+              pulumi stack init -s $PULUMI_STACK_NAME
               pulumi config set labels $LABEL
               pulumi config set owner $OWNER
               pulumi config set repo $REPO
-              pulumi update --diff
+              pulumi up --config-file ../../ilgpu/.github/workflows/runners/config.yaml -y
               ;;
             'completed')
               pulumi stack select $PULUMI_STACK_NAME
