@@ -94,6 +94,15 @@ jobs:
           AWS_REGION: ${{ secrets.AWS_REGION }}
         working-directory: pulumi
         run: |
+          echo "Debugging!"
+          echo "Action:" ${{ github.event.inputs.action }}
+          echo "Run id:" ${{ github.event.inputs.run_id }}
+          echo "Job id:" ${{ github.event.inputs.job_id }}
+          echo "Run attempt:" ${{ github.event.inputs.run_attempt }}
+          echo "Label:" ${{ github.event.inputs.label }}
+          echo "Stack name:" $PULUMI_STACK_NAME
+          echo "Debuging finished!"
+
           cd aws
           case ${{ github.event.inputs.action }} in
             'requested')
