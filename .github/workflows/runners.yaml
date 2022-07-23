@@ -105,8 +105,6 @@ jobs:
               pulumi up -y
               ;;
             'completed')
-              pulumi stack select $PULUMI_STACK_NAME
-              pulumi destroy
-              pulumi stack rm
+              echo "Down"
               ;;
           esac
