@@ -1,6 +1,6 @@
 config:
   ephemeral-github-runner:bootDiskSizeInGB: "100"
   ephemeral-github-runner:bootDiskType: gp2
-  ephemeral-github-runner:machineImage: ubuntu-focal-2004-amd64-server-20211129-ghr22950-nv510
+  ephemeral-github-runner:machineImage: "Deep Learning AMI GPU TensorFlow 282 (Ubuntu 2004) 20220731-ghr22950-nv510"
   ephemeral-github-runner:machineType: g4dn.xlarge
   ephemeral-github-runner:runnersCount: "1"
