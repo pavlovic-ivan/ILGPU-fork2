@@ -10,7 +10,6 @@ It offers the flexibility and the convenience of C++ AMP on the one hand and the
 Functions in the scope of kernels do not have to be annotated (default C# functions) and are allowed to work on value types.
 All kernels (including all hardware features like shared memory and atomics) can be executed and debugged on the CPU using the integrated multi-threaded CPU accelerator.
 
-
 # ILGPU.Algorithms
 
 Real-world applications typically require a standard library and a set of standard algorithms that "simply work".
