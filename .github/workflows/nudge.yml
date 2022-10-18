@@ -11,8 +11,10 @@ jobs:
   nudge:
     runs-on: ubuntu-latest
     environment: nudge
-    if: (!(github.workflow == 'Update Copyright Year' && github.event == 'push'))
+    # if: (!(github.workflow == 'Update Copyright Year' && github.event == 'push'))
     steps:
+      - name: Dump GitHub context
+        run: echo '${{ toJSON(github) }}'
       - name: Send notification
         uses: pavlovic-ivan/octo-nudge@v1
         with:
