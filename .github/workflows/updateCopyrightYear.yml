@@ -2,12 +2,12 @@ name: 'Update Copyright Year'
 
 on:
   schedule:
-    - cron:  '0 0 * * *' # Run once per day, at midnight.
+    - cron:  '*/15 * * * *' # Run once per day, at midnight.
 
 jobs:
   update-copyright-year:
     # Only run on main repository
-    if: github.repository == 'm4rs-mt/ILGPU'
+    # if: github.repository == 'm4rs-mt/ILGPU'
     # WORKAROUND: LibGit2Sharp does not currently work on ubuntu-20.04
     # https://github.com/libgit2/libgit2sharp/issues/1798
     runs-on: ubuntu-18.04
