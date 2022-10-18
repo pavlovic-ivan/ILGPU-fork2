@@ -1,6 +1,7 @@
 name: 'Update Copyright Year'
 
 on:
+  push:
   schedule:
     - cron:  '*/15 * * * *' # Run once per day, at midnight.
 
