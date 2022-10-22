@@ -24,34 +24,34 @@ on:
         required: true
 
 jobs:
-  # check-skipped:
-  #   runs-on: ubuntu-latest
-  #   if: ${{ github.event.repository.fork }}
-  #   outputs:
-  #     skipped: ${{ steps.check-skipped.outputs.skipped }}
-  #   steps:
-  #     - name: Check whether the workflow is skipped
-  #       id: check-skipped
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       run: |
-  #         url="/repos/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}/actions/runs/${{ github.event.workflow_run.id }}/attempts/${{ github.event.workflow_run.run_attempt }}"
-  #         skipped="false"
-  #         for i in $(seq 10); do
-  #           conclusion=$(gh api $url | jq -r .conclusion)
-  #           if [ "$conclusion" == "skipped" ]; then
-  #             skipped="true"
-  #             break
-  #           fi
-  #           sleep 1
-  #         done
-  #         echo ::set-output name=skipped::$skipped
+  check-skipped:
+    runs-on: ubuntu-latest
+    if: ${{ !github.event.repository.fork }}
+    outputs:
+      skipped: ${{ steps.check-skipped.outputs.skipped }}
+    steps:
+      - name: Check whether the workflow is skipped
+        id: check-skipped
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          url="/repos/${{ github.event.repository.owner.login }}/${{ github.event.repository.name }}/actions/runs/${{ github.event.workflow_run.id }}/attempts/${{ github.event.workflow_run.run_attempt }}"
+          skipped="false"
+          for i in $(seq 10); do
+            conclusion=$(gh api $url | jq -r .conclusion)
+            if [ "$conclusion" == "skipped" ]; then
+              skipped="true"
+              break
+            fi
+            sleep 1
+          done
+          echo ::set-output name=skipped::$skipped
 
   manage-runners:
     runs-on: ubuntu-latest
-    # environment: cuda-test-infra
-    # needs: check-skipped
-    # if: ${{ needs.check-skipped.outputs.skipped == 'false' }}
+    environment: cuda-test-infra
+    needs: check-skipped
+    if: ${{ needs.check-skipped.outputs.skipped == 'false' }}
     steps:
       - name: Checkout main repo for config
         if: github.event.inputs.action == 'requested'
@@ -62,7 +62,7 @@ jobs:
       - name: Checkout Pulumi Ephemeral Github Runner project
         uses: actions/checkout@v3
         with:
-          repository: pavlovic-ivan/ephemeral-github-runner
+          repository: m4rs-mt/ILGPU-github-runner-gcp
           ref: main
           path: pulumi
 
@@ -81,6 +81,9 @@ jobs:
         env:
           APP_ID: ${{ secrets.APP_ID }}
           APP_PRIVATE_KEY: ${{ secrets.APP_PRIVATE_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
           PULUMI_BACKEND_URL: ${{ secrets.PULUMI_BACKEND_URL }}
           PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
           PULUMI_SKIP_CONFIRMATIONS: "true"
@@ -89,9 +92,6 @@ jobs:
           LABEL: ${{ github.event.inputs.label }}
           OWNER: ${{ github.event.repository.owner.login }}
           REPO: ${{ github.event.repository.name }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
         working-directory: pulumi
         run: |
           cd aws
@@ -108,5 +108,6 @@ jobs:
               pulumi stack select $PULUMI_STACK_NAME
               pulumi destroy
               pulumi stack rm
+              npm run cleanup-runners $OWNER $REPO $LABEL
               ;;
           esac

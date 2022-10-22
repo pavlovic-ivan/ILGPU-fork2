@@ -4,7 +4,6 @@
 [![](https://img.shields.io/nuget/vpre/ilgpu?style=flat&label=pre-release)](https://www.nuget.org/packages/ilgpu/absoluteLatest)
 [![](https://img.shields.io/feedz/vpre/ilgpu/preview/ilgpu?style=flat&color=blue&label=preview)](#preview-versions)
 
-
 ILGPU is a JIT (just-in-time) compiler for high-performance GPU programs written in .Net-based languages.
 ILGPU is entirely written in C# without any native dependencies.
 It offers the flexibility and the convenience of C++ AMP on the one hand and the high performance of Cuda programs on the other hand.
