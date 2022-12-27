@@ -1,4 +1,3 @@
-
 # ILGPU
 [![CI](https://github.com/m4rs-mt/ILGPU/actions/workflows/ci.yml/badge.svg?style=flat&branch=master&event=push)](https://github.com/m4rs-mt/ILGPU/actions/workflows/ci.yml?query=branch%3Amaster+event%3Apush)
 [![](https://img.shields.io/nuget/v/ilgpu?style=flat&label=release)](https://www.nuget.org/packages/ilgpu/latest)

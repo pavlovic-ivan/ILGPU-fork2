@@ -76,6 +76,27 @@ namespace ILGPU.Backends.PTX
         #region Instance
 
         /// <summary>
+        /// Constructs a new Cuda backend using an implicitly given capability context
+        /// that is derived from the specified architecture.
+        /// </summary>
+        /// <param name="context">The context to use.</param>
+        /// <param name="architecture">The target GPU architecture.</param>
+        /// <param name="instructionSet">The target GPU instruction set.</param>
+        /// <param name="nvvmAPI">Optional NVVM API instance.</param>
+        public PTXBackend(
+            Context context,
+            CudaArchitecture architecture,
+            CudaInstructionSet instructionSet,
+            NvvmAPI nvvmAPI)
+            : this(
+                context,
+                new CudaCapabilityContext(architecture),
+                architecture,
+                instructionSet,
+                nvvmAPI)
+        { }
+
+        /// <summary>
         /// Constructs a new Cuda backend.
         /// </summary>
         /// <param name="context">The context to use.</param>
@@ -174,6 +195,7 @@ namespace ILGPU.Backends.PTX
         /// Creates a new PTX-compatible kernel builder and initializes a
         /// <see cref="PTXCodeGenerator.GeneratorArgs"/> instance.
         /// </summary>
+        [SuppressMessage("Globalization", "CA1308:Normalize strings to uppercase")]
         protected override StringBuilder CreateKernelBuilder(
             EntryPoint entryPoint,
             in BackendContext backendContext,
@@ -205,7 +227,7 @@ namespace ILGPU.Backends.PTX
             builder.Append(".version ");
             builder.AppendLine(InstructionSet.ToString());
             builder.Append(".target ");
-            builder.Append(Architecture.ToString().ToLower());
+            builder.Append(Architecture.ToString().ToLowerInvariant());
             if (useDebugInfo)
                 builder.AppendLine(", debug");
             else
