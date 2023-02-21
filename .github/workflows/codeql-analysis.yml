@@ -1,11 +1,24 @@
 name: "CodeQL"
 
 on:
+  workflow_dispatch: # Allows you to run this workflow manually from the Actions tab
   push:
     branches: [ master ]
+    paths-ignore:
+      - '.github/workflows/deploy-site.yml'
+      - '.github/workflows/update-copyright-year.yml'
+      - '.github/workflows/update-cuda-versions.yml'
+      - 'Docs/**'
+      - 'Site/**'
   pull_request:
     # The branches below must be a subset of the branches above.
     branches: [ master ]
+    paths-ignore:
+      - '.github/workflows/deploy-site.yml'
+      - '.github/workflows/update-copyright-year.yml'
+      - '.github/workflows/update-cuda-versions.yml'
+      - 'Docs/**'
+      - 'Site/**'
   schedule:
     - cron: '41 18 * * 1'
 

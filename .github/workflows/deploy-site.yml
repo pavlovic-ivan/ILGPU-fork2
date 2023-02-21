@@ -12,6 +12,15 @@ on:
       - main
       - master
     paths:
+      - '.github/workflows/deploy-site.yml'
+      - 'Docs/**'
+      - 'Site/**'
+  pull_request:
+    branches:
+      - main
+      - master
+    paths:
+      - '.github/workflows/deploy-site.yml'
       - 'Docs/**'
       - 'Site/**'
   milestone:
@@ -58,7 +67,7 @@ jobs:
       ##### Python #####
       ##### GitHub Pages #####
       - name: Setup Pages
-        uses: actions/configure-pages@v2
+        uses: actions/configure-pages@v3
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
@@ -69,6 +78,7 @@ jobs:
       ##### GitHub Pages #####
 
   deploy: # Deployment job
+    if: github.event_name != 'pull_request' # Skip deployment when building pull requests.
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
