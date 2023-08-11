@@ -74,8 +74,15 @@ jobs:
           source: ./Site
           destination: ./_site
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v1
+        uses: actions/upload-pages-artifact@v2
       ##### GitHub Pages #####
+
+  all-required-checks-done:
+    needs:
+      - build
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All required checks done"
 
   deploy: # Deployment job
     if: github.event_name != 'pull_request' # Skip deployment when building pull requests.
@@ -87,4 +94,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v1
+        uses: actions/deploy-pages@v2

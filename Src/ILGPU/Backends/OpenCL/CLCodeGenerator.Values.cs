@@ -1,6 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------
 //                                        ILGPU
-//                        Copyright (c) 2019-2021 ILGPU Project
+//                        Copyright (c) 2019-2023 ILGPU Project
 //                                    www.ilgpu.net
 //
 // File: CLCodeGenerator.Values.cs
@@ -14,7 +14,6 @@ using ILGPU.IR.Types;
 using ILGPU.IR.Values;
 using ILGPU.Runtime.OpenCL;
 using ILGPU.Util;
-using System;
 using System.Runtime.CompilerServices;
 
 namespace ILGPU.Backends.OpenCL
@@ -138,7 +137,7 @@ namespace ILGPU.Backends.OpenCL
             if (!CLInstructions.TryGetArithmeticOperation(
                 value.Kind,
                 value.BasicValueType.IsFloat(),
-                out string operation))
+                out string? operation))
             {
                 throw new InvalidCodeGenerationException();
             }
@@ -230,7 +229,9 @@ namespace ILGPU.Backends.OpenCL
             statement.AppendCommand(
                 value.BasicValueType == BasicValueType.Int64 ?
                 CLInstructions.DoubleAsLong :
-                CLInstructions.FloatAsInt);
+                value.BasicValueType == BasicValueType.Int32 ?
+                CLInstructions.FloatAsInt :
+                CLInstructions.HalfAsShort);
             statement.BeginArguments();
             statement.AppendArgument(source);
             statement.EndArguments();
@@ -246,7 +247,9 @@ namespace ILGPU.Backends.OpenCL
             statement.AppendCommand(
                 value.BasicValueType == BasicValueType.Float64 ?
                 CLInstructions.LongAsDouble :
-                CLInstructions.IntAsFloat);
+                value.BasicValueType == BasicValueType.Float32 ?
+                CLInstructions.IntAsFloat :
+                CLInstructions.ShortAsHalf);
             statement.BeginArguments();
             statement.AppendArgument(source);
             statement.EndArguments();
@@ -589,7 +592,7 @@ namespace ILGPU.Backends.OpenCL
         private void MakeIntrinsicValue(
             Value value,
             string operation,
-            string args = null)
+            string? args = null)
         {
             var target = Allocate(value);
             using var statement = BeginStatement(target);
@@ -659,7 +662,7 @@ namespace ILGPU.Backends.OpenCL
 
             // Resolve the name of the global variable containing the length of the
             // shared dynamic memory buffer.
-            var dynamicView = value.GetFirstUseNode().ResolveAs<Alloca>();
+            var dynamicView = value.GetFirstUseNode().ResolveAs<Alloca>().AsNotNull();
             var lengthVariableName = GetSharedMemoryAllocationLengthName(dynamicView);
 
             // Load the dynamic memory size (in bytes) from the dynamic length variable
@@ -705,7 +708,7 @@ namespace ILGPU.Backends.OpenCL
 
             if (!CLInstructions.TryGetPredicateBarrier(
                 barrier.Kind,
-                out string operation))
+                out string? operation))
             {
                 throw new InvalidCodeGenerationException();
             }
@@ -753,7 +756,7 @@ namespace ILGPU.Backends.OpenCL
             if (!CLInstructions.TryGetShuffleOperation(
                 Backend.Vendor,
                 shuffle.Kind,
-                out string operation))
+                out string? operation))
             {
                 throw new InvalidCodeGenerationException();
             }

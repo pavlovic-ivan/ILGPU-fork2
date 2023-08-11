@@ -246,6 +246,9 @@ ModelManifest.xml
 # Rider
 .idea/
 
+# macOS
+.DS_Store
+
 # Ignore specific template outputs
 Src/ILGPU/AtomicFunctions.cs
 Src/ILGPU/Backends/PTX/PTXIntrinsics.Generated.cs
@@ -263,7 +266,10 @@ Src/ILGPU/IntrinsicMath.CPUOnly.cs
 Src/ILGPU/Memory.cs
 Src/ILGPU/Runtime/ArrayViewExtensions.Generated.cs
 Src/ILGPU/Runtime/ArrayViews.cs
+Src/ILGPU/Runtime/Cuda/CudaArchitecture.Generated.cs
 Src/ILGPU/Runtime/Cuda/CudaAsm.Generated.cs
+Src/ILGPU/Runtime/Cuda/CudaDriverVersion.Generated.cs
+Src/ILGPU/Runtime/Cuda/CudaInstructionSet.Generated.cs
 Src/ILGPU/Runtime/Cuda/LibDevice.cs
 Src/ILGPU/Runtime/KernelLoaders.cs
 Src/ILGPU/Runtime/MemoryBuffers.cs
@@ -284,6 +290,7 @@ Src/ILGPU.Algorithms/HistogramOperations.cs
 Src/ILGPU.Algorithms/IL/ILContext.Generated.cs
 Src/ILGPU.Algorithms/PTX/PTXContext.Generated.cs
 Src/ILGPU.Algorithms/RadixSortOperations.cs
+Src/ILGPU.Algorithms/Vectors/VectorTypes.cs
 Src/ILGPU.Algorithms/Runtime/Cuda/API/CuBlasNativeMethods.cs
 Src/ILGPU.Algorithms/Runtime/Cuda/API/CuFFTAPI.Generated.cs
 Src/ILGPU.Algorithms/Runtime/Cuda/API/CuFFTNativeMethods.cs
@@ -356,6 +363,3 @@ Src/ILGPU.Algorithms.Tests/XMathTests.Trig.cs
 Src/ILGPU.Algorithms.Tests.CPU/Configurations.cs
 Src/ILGPU.Algorithms.Tests.Cuda/Configurations.cs
 Src/ILGPU.Algorithms.Tests.OpenCL/Configurations.cs
-
-
-*.DS_Store

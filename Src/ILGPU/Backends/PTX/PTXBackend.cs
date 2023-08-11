@@ -1,6 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------
 //                                        ILGPU
-//                        Copyright (c) 2018-2022 ILGPU Project
+//                        Copyright (c) 2018-2023 ILGPU Project
 //                                    www.ilgpu.net
 //
 // File: PTXBackend.cs
@@ -16,6 +16,7 @@ using ILGPU.IR.Analyses;
 using ILGPU.IR.Transformations;
 using ILGPU.Runtime;
 using ILGPU.Runtime.Cuda;
+using ILGPU.Util;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -109,7 +110,7 @@ namespace ILGPU.Backends.PTX
             CudaCapabilityContext capabilities,
             CudaArchitecture architecture,
             CudaInstructionSet instructionSet,
-            NvvmAPI nvvmAPI)
+            NvvmAPI? nvvmAPI)
             : base(
                   context,
                   capabilities,
@@ -174,18 +175,18 @@ namespace ILGPU.Backends.PTX
         /// Returns the associated <see cref="Backend.ArgumentMapper"/>.
         /// </summary>
         public new PTXArgumentMapper ArgumentMapper =>
-            base.ArgumentMapper as PTXArgumentMapper;
+            base.ArgumentMapper.AsNotNullCast<PTXArgumentMapper>();
 
         /// <summary>
         /// Returns the supported capabilities.
         /// </summary>
         public new CudaCapabilityContext Capabilities =>
-            base.Capabilities as CudaCapabilityContext;
+            base.Capabilities.AsNotNullCast<CudaCapabilityContext>();
 
         /// <summary>
         /// Returns the NVVM API instance (if available).
         /// </summary>
-        public NvvmAPI NvvmAPI { get; private set; }
+        public NvvmAPI? NvvmAPI { get; private set; }
 
         #endregion
 
@@ -290,7 +291,7 @@ namespace ILGPU.Backends.PTX
         /// </summary>
         protected override CompiledKernel CreateKernel(
             EntryPoint entryPoint,
-            CompiledKernel.KernelInfo kernelInfo,
+            CompiledKernel.KernelInfo? kernelInfo,
             StringBuilder builder,
             PTXCodeGenerator.GeneratorArgs data)
         {
@@ -316,15 +317,20 @@ namespace ILGPU.Backends.PTX
             if (NvvmAPI == null || backendContext.Count == 0)
                 return;
 
+            // Determine the NVVM IR Version to use.
+            var result = NvvmAPI.GetIRVersion(out int majorIR, out _, out _, out _);
+            if (result != NvvmResult.NVVM_SUCCESS)
+                return;
+
             // Convert the methods in the context into NVVM.
             var methods = backendContext.GetEnumerator().AsEnumerable();
-            var nvvmModule = PTXLibDeviceNvvm.GenerateNvvm(methods);
+            var nvvmModule = PTXLibDeviceNvvm.GenerateNvvm(majorIR, methods);
 
             if (string.IsNullOrEmpty(nvvmModule))
                 return;
 
             // Create a new NVVM program.
-            var result = NvvmAPI.CreateProgram(out var program);
+            result = NvvmAPI.CreateProgram(out var program);
 
             try
             {
@@ -383,7 +389,7 @@ namespace ILGPU.Backends.PTX
                     if (result == NvvmResult.NVVM_SUCCESS)
                     {
                         var compiledString =
-                            compiledPTX
+                            compiledPTX.AsNotNull()
                             .Replace(".version", "//.version")
                             .Replace(".target", "//.target")
                             .Replace(".address_size", "//.address_size");

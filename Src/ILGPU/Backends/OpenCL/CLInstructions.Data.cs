@@ -1,6 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------
 //                                        ILGPU
-//                        Copyright (c) 2019-2021 ILGPU Project
+//                        Copyright (c) 2019-2023 ILGPU Project
 //                                    www.ilgpu.net
 //
 // File: CLInstructions.Data.cs
@@ -98,6 +98,11 @@ namespace ILGPU.Backends.OpenCL
         public const string AtomicCASOperation = "atomic_compare_exchange_strong";
 
         /// <summary>
+        /// An short-as-half operation.
+        /// </summary>
+        public const string ShortAsHalf = "as_half";
+
+        /// <summary>
         /// An int-as-float operation.
         /// </summary>
         public const string IntAsFloat = "as_float";
@@ -106,6 +111,11 @@ namespace ILGPU.Backends.OpenCL
         /// An long-as-double operation.
         /// </summary>
         public const string LongAsDouble = "as_double";
+
+        /// <summary>
+        /// A half-as-short operation.
+        /// </summary>
+        public const string HalfAsShort = "as_short";
 
         /// <summary>
         /// A float-as-int operation.
@@ -171,7 +181,7 @@ namespace ILGPU.Backends.OpenCL
             "private",
         };
 
-        private static readonly string[] AddressSpaceCastOperations =
+        private static readonly string?[] AddressSpaceCastOperations =
         {
             null,
             "to_global",
@@ -185,7 +195,7 @@ namespace ILGPU.Backends.OpenCL
             "work_group_barrier",
         };
 
-        private static readonly string[] PredicateBarrierOperations =
+        private static readonly string?[] PredicateBarrierOperations =
         {
             null,
             "work_group_all",

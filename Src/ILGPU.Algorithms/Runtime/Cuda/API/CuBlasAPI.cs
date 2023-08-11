@@ -1,6 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------
 //                                   ILGPU Algorithms
-//                        Copyright (c) 2020-2021 ILGPU Project
+//                        Copyright (c) 2020-2023 ILGPU Project
 //                                    www.ilgpu.net
 //
 // File: CuBlasAPI.cs
@@ -28,6 +28,7 @@ namespace ILGPU.Runtime.Cuda.API
         public static CuBlasAPI Create(CuBlasAPIVersion? version) =>
             version.HasValue
             ? CreateInternal(version.Value)
+                ?? throw new DllNotFoundException(nameof(CuBlasAPI))
             : CreateLatest();
 
         /// <summary>
@@ -36,12 +37,15 @@ namespace ILGPU.Runtime.Cuda.API
         /// <returns>The created API wrapper.</returns>
         private static CuBlasAPI CreateLatest()
         {
-            Exception firstException = null;
-            var versions = Enum.GetValues(typeof(CuBlasAPIVersion));
-
+            Exception? firstException = null;
+#if NET5_0_OR_GREATER
+            var versions = Enum.GetValues<CuBlasAPIVersion>();
+#else
+            var versions = (CuBlasAPIVersion[])Enum.GetValues(typeof(CuBlasAPIVersion));
+#endif
             for (var i = versions.Length - 1; i >= 0; i--)
             {
-                var version = (CuBlasAPIVersion)versions.GetValue(i);
+                var version = versions[i];
                 var api = CreateInternal(version);
                 if (api is null)
                     continue;
@@ -67,52 +71,9 @@ namespace ILGPU.Runtime.Cuda.API
         }
 
         /// <summary>
-        /// Constructs a new cuRAND API instance.
+        /// Constructs a new cuBlas API instance.
         /// </summary>
         protected CuBlasAPI() { }
-
-        #endregion
-
-        #region Methods
-        public abstract CuBlasStatus Create(out IntPtr handle);
-
-        public abstract CuBlasStatus GetVersion(
-            IntPtr handle,
-            out int version);
-
-        public abstract CuBlasStatus Free(IntPtr handle);
-
-        public abstract CuBlasStatus GetStream(
-            IntPtr handle,
-            out IntPtr stream);
-
-        public abstract CuBlasStatus SetStream(
-            IntPtr handle,
-            IntPtr stream);
-
-        public abstract CuBlasStatus GetPointerMode(
-            IntPtr handle,
-            out CuBlasPointerMode mode);
-
-        public abstract CuBlasStatus SetPointerMode(
-            IntPtr handle,
-            CuBlasPointerMode mode);
-
-        public abstract CuBlasStatus GetAtomicsMode(
-            IntPtr handle,
-            out CuBlasAtomicsMode mode);
-
-        public abstract CuBlasStatus SetAtomicsMode(
-            IntPtr handle,
-            CuBlasAtomicsMode mode);
-
-        public abstract CuBlasStatus GetMathMode(
-            IntPtr handle,
-            out CuBlasMathMode mode);
-
-        public abstract CuBlasStatus SetMathMode(
-            IntPtr handle,
-            CuBlasMathMode mode);
 
         #endregion
     }

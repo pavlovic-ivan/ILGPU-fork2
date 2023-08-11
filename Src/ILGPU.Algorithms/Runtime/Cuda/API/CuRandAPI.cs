@@ -1,6 +1,6 @@
 ﻿// ---------------------------------------------------------------------------------------
 //                                   ILGPU Algorithms
-//                           Copyright (c) 2021 ILGPU Project
+//                        Copyright (c) 2021-2023 ILGPU Project
 //                                    www.ilgpu.net
 //
 // File: CuRandAPI.cs
@@ -28,6 +28,7 @@ namespace ILGPU.Runtime.Cuda.API
         public static CuRandAPI Create(CuRandAPIVersion? version) =>
             version.HasValue
             ? CreateInternal(version.Value)
+                ?? throw new DllNotFoundException(nameof(CuRandAPI))
             : CreateLatest();
 
         /// <summary>
@@ -36,12 +37,15 @@ namespace ILGPU.Runtime.Cuda.API
         /// <returns>The created API wrapper.</returns>
         private static CuRandAPI CreateLatest()
         {
-            Exception firstException = null;
-            var versions = Enum.GetValues(typeof(CuRandAPIVersion));
-
+            Exception? firstException = null;
+#if NET5_0_OR_GREATER
+            var versions = Enum.GetValues<CuRandAPIVersion>();
+#else
+            var versions = (CuRandAPIVersion[])Enum.GetValues(typeof(CuRandAPIVersion));
+#endif
             for (var i = versions.Length - 1; i >= 0; i--)
             {
-                var version = (CuRandAPIVersion)versions.GetValue(i);
+                var version = versions[i];
                 var api = CreateInternal(version);
                 if (api != null)
                 {
@@ -67,105 +71,6 @@ namespace ILGPU.Runtime.Cuda.API
         /// Constructs a new cuRAND API instance.
         /// </summary>
         protected CuRandAPI() { }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Creates a new GPU generator.
-        /// </summary>
-        public abstract CuRandStatus CreateGenerator(
-            out IntPtr generator,
-            CuRandRngType rngType);
-
-        /// <summary>
-        /// Creates a new CPU generator.
-        /// </summary>
-        public abstract CuRandStatus CreateGeneratorHost(
-            out IntPtr generator,
-            CuRandRngType rngType);
-
-        /// <summary>
-        /// Destroys the given generator.
-        /// </summary>
-        public abstract CuRandStatus DestoryGenerator(IntPtr generator);
-
-        /// <summary>
-        /// Determines the version of the API.
-        /// </summary>
-        public abstract CuRandStatus GetVersion(out int version);
-
-        /// <summary>
-        /// Sets the stream to use.
-        /// </summary>
-        public abstract CuRandStatus SetStream(
-            IntPtr generator,
-            IntPtr stream);
-
-        /// <summary>
-        /// Sets the stream seed.
-        /// </summary>
-        public abstract CuRandStatus SetSeed(
-            IntPtr generator,
-            long seed);
-
-        /// <summary>
-        /// Generates internal seeds.
-        /// </summary>
-        public abstract CuRandStatus GenerateSeeds(IntPtr generator);
-
-        /// <summary>
-        /// Generates uniform unsigned integers.
-        /// </summary>
-        public abstract CuRandStatus GenerateUInt(
-            IntPtr generator,
-            IntPtr outputPtr,
-            IntPtr length);
-
-        /// <summary>
-        /// Generates uniform unsigned longs.
-        /// </summary>
-        public abstract CuRandStatus GenerateULong(
-            IntPtr generator,
-            IntPtr outputPtr,
-            IntPtr length);
-
-        /// <summary>
-        /// Generates uniform unsigned floats.
-        /// </summary>
-        public abstract CuRandStatus GenerateUniformFloat(
-            IntPtr generator,
-            IntPtr outputPtr,
-            IntPtr length);
-
-        /// <summary>
-        /// Generates uniform unsigned doubles.
-        /// </summary>
-        public abstract CuRandStatus GenerateUniformDouble(
-            IntPtr generator,
-            IntPtr outputPtr,
-            IntPtr length);
-
-        /// <summary>
-        /// Generates normally distributed floats.
-        /// </summary>
-        public abstract CuRandStatus GenerateNormalFloat(
-            IntPtr generator,
-            IntPtr outputPtr,
-            IntPtr length,
-            float mean,
-            float stddev);
-
-        /// <summary>
-        /// Generates normally distributed doubles.
-        /// </summary>
-        public abstract CuRandStatus GenerateNormalDouble(
-            IntPtr generator,
-            IntPtr outputPtr,
-            IntPtr length,
-            double mean,
-            double stddev);
 
         #endregion
     }

@@ -636,7 +636,7 @@ namespace ILGPU.Backends.EntryPoints
         protected Type MapType(Type type)
         {
             Debug.Assert(type != null, "Invalid source type");
-            if (typeMapping.TryGetValue(type, out Type mappedType))
+            if (typeMapping.TryGetValue(type, out Type? mappedType))
                 return mappedType;
 
             if (type.IsByRef)
@@ -673,7 +673,7 @@ namespace ILGPU.Backends.EntryPoints
                 return RegisterTypeMapping(type, typeof(void*));
             else if (type.IsEnum)
                 return RegisterTypeMapping(type, type.GetEnumUnderlyingType());
-            else if (type.IsArrayViewType(out Type elementType))
+            else if (type.IsArrayViewType(out Type? elementType))
                 return RegisterTypeMapping(type, MapViewType(type, elementType));
             else
                 return RegisterTypeMapping(type, MapStructType(type));
@@ -760,7 +760,7 @@ namespace ILGPU.Backends.EntryPoints
                 // Copy object from source to target
                 target.EmitStoreTarget(emitter, source);
             }
-            else if (sourceType.IsArrayViewType(out Type elementType))
+            else if (sourceType.IsArrayViewType(out Type? elementType))
             {
                 MapViewInstance(emitter, elementType, source, target);
             }
@@ -821,10 +821,20 @@ namespace ILGPU.Backends.EntryPoints
             // Map all parameters
             for (int i = 0, e = parameters.Count; i < e; ++i)
             {
+                var paramType = parameters.ParameterTypes[i];
                 try
                 {
+                    // Ensure kernel parameters are blittable.
+                    if (!TypeContext.GetTypeInfo(paramType).IsValidKernelParameter)
+                    {
+                        throw new NotSupportedException(
+                            string.Format(
+                                RuntimeErrorMessages.NotSupportedNonBlittableType,
+                                paramType.FullName));
+                    }
+
                     // Map type and store the mapped instance in a pinned local
-                    var mappedType = MapType(parameters.ParameterTypes[i]);
+                    var mappedType = MapType(paramType);
                     var mappingLocal = emitter.DeclarePinnedLocal(mappedType);
                     var localTarget = new LocalTarget(mappingLocal);
 
@@ -840,7 +850,7 @@ namespace ILGPU.Backends.EntryPoints
                     throw new ArgumentException(
                         string.Format(
                             ErrorMessages.NotSupportedKernelParameterType,
-                            parameters.ParameterTypes[i]),
+                            paramType),
                         nse);
                 }
             }
@@ -886,7 +896,7 @@ namespace ILGPU.Backends.EntryPoints
             {
                 var fieldTarget = new StructureTarget<LocalTarget>(
                     localTarget,
-                    argumentType.GetField(GetFieldName(i)));
+                    argumentType.GetField(GetFieldName(i)).AsNotNull());
 
                 // Perform actual instance mapping on local
                 MapParameter(emitter, parameters, i, fieldTarget);
@@ -897,7 +907,7 @@ namespace ILGPU.Backends.EntryPoints
             var lastFieldName = GetFieldName(parameters.Count - 1);
             int lastOffset = Marshal.OffsetOf(argumentType, lastFieldName).ToInt32();
             int lastFieldSize = Interop.SizeOf(
-                argumentType.GetField(lastFieldName).FieldType);
+                argumentType.GetField(lastFieldName).AsNotNull().FieldType);
 
             // Map the whole argument structure
             return mappingHandler.MapArgumentStruct(
@@ -934,9 +944,20 @@ namespace ILGPU.Backends.EntryPoints
             // Define all parameter types
             for (int i = 0, e = parameters.Count; i < e; ++i)
             {
+                var paramType = parameters.ParameterTypes[i];
                 try
                 {
-                    var mappedType = MapType(parameters.ParameterTypes[i]);
+                    // Ensure kernel parameters are blittable.
+                    if (!TypeContext.GetTypeInfo(paramType).IsValidKernelParameter)
+                    {
+                        throw new NotSupportedException(
+                            string.Format(
+                                RuntimeErrorMessages.NotSupportedNonBlittableType,
+                                paramType.FullName));
+                    }
+
+                    // Map parameter to argument struct.
+                    var mappedType = MapType(paramType);
                     typeBuilder.DefineField(
                         GetFieldName(i),
                         mappedType,
@@ -947,7 +968,7 @@ namespace ILGPU.Backends.EntryPoints
                     throw new ArgumentException(
                         string.Format(
                             ErrorMessages.NotSupportedKernelParameterType,
-                            parameters.ParameterTypes[i]),
+                            paramType),
                         nse);
                 }
             }
