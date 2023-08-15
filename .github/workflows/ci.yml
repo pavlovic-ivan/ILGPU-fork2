@@ -200,7 +200,7 @@ jobs:
         env:
           DOTNET_INSTALL_DIR: ${{ matrix.framework == 'cuda' && '~/.' }}
         with:
-          dotnet-version: 7.0.x
+          dotnet-version: 7.0.306
 
       - name: Set test flavor
         id: test-flavor
