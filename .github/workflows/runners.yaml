@@ -55,12 +55,12 @@ jobs:
     steps:
       - name: Checkout main repo for config
         if: github.event.inputs.action == 'requested'
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: ilgpu
 
       - name: Checkout Pulumi Ephemeral Github Runner project
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: m4rs-mt/ILGPU-github-runner-gcp
           ref: main
