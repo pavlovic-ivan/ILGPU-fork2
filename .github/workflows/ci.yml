@@ -22,6 +22,14 @@ env:
 
 jobs:
 
+  print-context:
+    runs-on: ubuntu-latest
+    steps:
+      - name: print context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+
   # Check some basic style rules.
   check-style:
     # Do not run this job for pull requests where both branches are from the same repo.
